@@ -1,0 +1,88 @@
+﻿@page "/saludo"
+@rendermode InteractiveServer
+
+<h3>Saludo @Letrero</h3>
+
+<div class="container">
+    <div class="my-3">
+        <label for="txtLimite" class="form-label">Límite</label>
+        <input type="number" class="form-control" id="txtLimite" @bind="_limite" />
+    </div>
+    <button class="btn btn-success mb-3" @onclick="Ejecutar">Ejecutar</button>
+    <button class="btn btn-danger mb-3" @onclick="Eliminar">Eliminar</button>
+    <button class="btn btn-success mb-3" @onclick="Buscar">Buscar</button>
+    <button class="btn btn-info mb-3" @onclick="Estadisticas">Estadísticas</button>
+
+    <h4>La calificación más alta es: @_maxCalificacion</h4>
+    <h4>La calificación más baja es: @_minCalificacion</h4>
+    <h4>El promedio es: @_promedioCalificacion</h4>
+
+    <p>@_salida</p>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var calificacion in _calificaciones)
+            {
+                <tr><td>@calificacion</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public string Letrero { get; set; } = "Bienvenido a Blazor";
+
+    private string? _salida;
+    private int _limite;
+    private List<int> _calificaciones = new();
+
+    // Variables para estadísticas
+    private int _maxCalificacion = 0;
+    private int _minCalificacion = 0;
+    private double _promedioCalificacion = 0;
+
+    private void Ejecutar()
+    {
+        Random aleatorio = new();
+        _calificaciones.Clear();
+        for (int i = 0; i < _limite; i++)
+        {
+            _calificaciones.Add(aleatorio.Next(11)); // Genera calificaciones de 0 a 10
+        }
+    }
+
+    private void Buscar()
+    {
+        int posicion = _calificaciones.IndexOf(_limite);
+        _salida = (posicion > -1) ? $"ENCONTRADA EN: {posicion}" : "NO ENCONTRADA";
+    }
+
+    private void Eliminar()
+    {
+        if (_calificaciones.Contains(_limite))
+        {
+            _calificaciones.Remove(_limite);
+        }
+    }
+
+    private void Estadisticas()
+    {
+        if (_calificaciones.Count > 0)
+        {
+            _maxCalificacion = _calificaciones.Max();
+            _minCalificacion = _calificaciones.Min();
+            _promedioCalificacion = _calificaciones.Average();
+        }
+        else
+        {
+            _maxCalificacion = 0;
+            _minCalificacion = 0;
+            _promedioCalificacion = 0;
+        }
+    }
+}

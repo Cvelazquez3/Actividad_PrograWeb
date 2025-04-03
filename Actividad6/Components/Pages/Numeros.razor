@@ -1,0 +1,64 @@
+﻿@page "/lista-numeros"
+@rendermode InteractiveServer
+
+<h3>Listas de números</h3>
+
+<div class="mb-3">
+    <label for="num1" class="form-label">Número 1</label>
+    <input id="num1" @bind="Numero1" type="number" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label for="num2" class="form-label">Número 2</label>
+    <input id="num2" @bind="Numero2" type="number" class="form-control" />
+</div>
+
+<button class="btn btn-primary" @onclick="Calcular">Calcular</button>
+
+<hr />
+
+<div class="row">
+    <div class="col">
+        <h4>Pares</h4>
+        <ul class="list-group">
+            @foreach (var par in NumerosPares)
+            {
+                <li class="list-group-item">@par</li>
+            }
+        </ul>
+    </div>
+    <div class="col">
+        <h4>Impares</h4>
+        <ul class="list-group">
+            @foreach (var impar in NumerosImpares)
+            {
+                <li class="list-group-item">@impar</li>
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    private int Numero1 { get; set; }
+    private int Numero2 { get; set; }
+
+    private List<int> NumerosPares { get; set; } = new();
+    private List<int> NumerosImpares { get; set; } = new();
+
+    private void Calcular()
+    {
+        NumerosPares.Clear();
+        NumerosImpares.Clear();
+
+        int inicio = Math.Min(Numero1, Numero2);
+        int fin = Math.Max(Numero1, Numero2);
+
+        for (int i = inicio; i <= fin; i++)
+        {
+            if (i % 2 == 0)
+                NumerosPares.Add(i);
+            else
+                NumerosImpares.Add(i);
+        }
+    }
+}

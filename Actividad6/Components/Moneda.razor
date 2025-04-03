@@ -1,0 +1,45 @@
+﻿@page "/moneda"
+@rendermode InteractiveServer
+@* Importar la hoja de estilos de Bootstrap *@
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container mt-5">
+    <h2 class="mb-4">Cambio de moneda</h2>
+
+    <div class="form-group">
+        <label>Pesos</label>
+        <input type="number" class="form-control" placeholder="0" @bind="pesos" />
+    </div>
+
+    <button class="btn btn-primary mb-3" @onclick="Cambio">Convertir</button>
+
+    <div class="form-group">
+        <label>Dólares</label>
+        <input type="text" class="form-control" placeholder="0" value="@Dolares" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Euros</label>
+        <input type="text" class="form-control" placeholder="0" value="@Euros" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Libras</label>
+        <input type="text" class="form-control" placeholder="0" value="@Libras" readonly />
+    </div>
+</div>
+
+@code {
+    private decimal pesos { get; set; }
+    private decimal Dolares { get; set; }
+    private decimal Euros { get; set; }
+    private decimal Libras { get; set; }
+
+    private void Cambio()
+    {
+        Dolares = pesos * 0.058m;
+        Euros = pesos * 0.053m;
+        Libras = pesos * 0.045m;
+        StateHasChanged();
+    }
+}

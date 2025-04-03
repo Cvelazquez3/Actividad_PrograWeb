@@ -1,0 +1,55 @@
+﻿@page "/alumnos"
+
+@using Actividad6.Components.Data
+<h3>Alumnos</h3>
+
+<EditForm Model="_alumno" FormName="frmAlumno" OnSubmit="Guardar">
+	<div class="my-3">
+		<label for="txtNombre" class="form-label">Nombre</label>
+		<InputText @bind-Value="_alumno.Nombre" class="form-control" id="txtNombre"></InputText>
+
+	</div>
+	<div class="my-3">
+		<label for="txtCorreo" class="form-label">Correo</label>
+		<InputText @bind-Value="_alumno.Correo" class="form-control" id="txtCorreo"></InputText>
+
+	</div>
+	<div class="my-3">
+		<label for="txtEdad" class="form-label">Edad</label>
+		<InputNumber @bind-Value="_alumno.Edad" class="form-control" id="txtEdad"></InputNumber>
+
+	</div>
+	<button class="btn btn-success">Guardar</button>
+</EditForm>
+
+<table class="table table-striped">
+<thead>
+	<tr>
+		<th>Nombre</th>
+		<th>Correo</th>
+		<th>Edad</th>
+	</tr>
+</thead>
+
+<tbody>
+	@foreach(Persona persona in _alumnos){
+		<tr>
+			<td>@persona.Nombre</td>
+			<td>@persona.Correo</td>
+			<td>@persona.Edad</td>
+		</tr>
+	}
+</tbody>
+</table>
+
+@rendermode InteractiveServer
+@code {
+	private Persona _alumno = new();
+	private List<Persona> _alumnos = new();
+
+	private void Guardar(){
+		_alumnos.Add(_alumno);
+		_alumno = new();
+	}
+
+}

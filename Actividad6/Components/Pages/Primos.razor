@@ -1,0 +1,49 @@
+﻿@page "/Numeros-primos"
+@rendermode InteractiveServer
+
+<h3>Números primos</h3>
+
+<div>
+    <label>Número entero</label>
+    <input type="number" @bind="Numero" class="form-control" min="1" />
+
+    <button @onclick="GenerarPrimos" class="btn btn-primary mt-2">Generar primos</button>
+</div>
+
+@if (NumerosPrimos.Count > 0)
+{
+    <h4>Números primos</h4>
+    <ul class="list-group">
+        @foreach (var primo in NumerosPrimos)
+        {
+            <li class="list-group-item">@primo</li>
+        }
+    </ul>
+}
+
+@code {
+    private int Numero { get; set; } = 10;
+    private List<int> NumerosPrimos { get; set; } = new();
+
+    private void GenerarPrimos()
+    {
+        NumerosPrimos.Clear();
+
+        for (int i = 2; i <= Numero; i++)
+        {
+            if (EsPrimo(i))
+                NumerosPrimos.Add(i);
+        }
+    }
+
+    private bool EsPrimo(int num)
+    {
+        if (num < 2) return false;
+        for (int i = 2; i * i <= num; i++)
+        {
+            if (num % i == 0)
+                return false;
+        }
+        return true;
+    }
+}
