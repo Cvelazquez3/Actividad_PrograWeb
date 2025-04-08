@@ -1,0 +1,138 @@
+﻿@page "/canciones"
+@rendermode InteractiveServer
+
+<h3>Lista de Canciones</h3>
+
+<EditForm Model="_nuevaCancion" OnValidSubmit="AgregarCancion">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="my-3">
+        <label for="txtTitulo" class="form-label">Título</label>
+        <InputText class="form-control" id="txtTitulo" @bind-Value="_nuevaCancion.Titulo" />
+        <ValidationMessage For="@(() => _nuevaCancion.Titulo)" />
+    </div>
+    <button class="btn btn-success" type="submit">Agregar</button>
+</EditForm>
+
+<div class="my-3">
+    <label for="txtFiltro" class="form-label">Filtrar por palabra clave</label>
+    <InputText class="form-control" id="txtFiltro" @bind-Value="_filtro" @oninput="FiltrarCanciones" />
+</div>
+
+<div class="my-3">
+    <button class="btn btn-primary" @onclick="OrdenarAscendente">Ordenar A-Z</button>
+    <button class="btn btn-secondary" @onclick="OrdenarDescendente">Ordenar Z-A</button>
+</div>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Cancion cancion in _cancionesFiltradas)
+        {
+            <tr>
+                <td>
+                    @if (_cancionEditando == cancion)
+                    {
+                        <InputText class="form-control" @bind-Value="_cancionEditando.Titulo" />
+                    }
+                    else
+                    {
+                        @cancion.Titulo
+                    }
+                </td>
+                <td>
+                    @if (_cancionEditando == cancion)
+                    {
+                        <button class="btn btn-success" @onclick="GuardarEdicion">Guardar</button>
+                        <button class="btn btn-warning" @onclick="CancelarEdicion">Cancelar</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-info" @onclick="() => EditarCancion(cancion)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => EliminarCancion(cancion)">Eliminar</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private Cancion _nuevaCancion = new();
+    private List<Cancion> _canciones = new();
+    private List<Cancion> _cancionesFiltradas = new();
+    private string _filtro = string.Empty;
+    private Cancion? _cancionEditando = null;
+
+    private void AgregarCancion()
+    {
+        if (!string.IsNullOrWhiteSpace(_nuevaCancion.Titulo))
+        {
+            _canciones.Add(new Cancion { Titulo = _nuevaCancion.Titulo });
+            _nuevaCancion = new();
+            AplicarFiltro();
+        }
+    }
+
+    private void EliminarCancion(Cancion cancion)
+    {
+        _canciones.Remove(cancion);
+        AplicarFiltro();
+    }
+
+    private void EditarCancion(Cancion cancion)
+    {
+        _cancionEditando = new Cancion { Titulo = cancion.Titulo };
+        _canciones.Remove(cancion);
+    }
+
+    private void GuardarEdicion()
+    {
+        if (_cancionEditando != null && !string.IsNullOrWhiteSpace(_cancionEditando.Titulo))
+        {
+            _canciones.Add(_cancionEditando);
+            _cancionEditando = null;
+            AplicarFiltro();
+        }
+    }
+
+    private void CancelarEdicion()
+    {
+        _cancionEditando = null;
+    }
+
+    private void OrdenarAscendente()
+    {
+        _canciones.Sort((a, b) => a.Titulo.CompareTo(b.Titulo));
+        AplicarFiltro();
+    }
+
+    private void OrdenarDescendente()
+    {
+        _canciones.Sort((a, b) => b.Titulo.CompareTo(a.Titulo));
+        AplicarFiltro();
+    }
+
+    private void FiltrarCanciones(ChangeEventArgs e)
+    {
+        _filtro = e.Value?.ToString() ?? string.Empty;
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        _cancionesFiltradas = _canciones
+            .Where(c => string.IsNullOrWhiteSpace(_filtro) || c.Titulo.Contains(_filtro, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private class Cancion
+    {
+        public string Titulo { get; set; } = string.Empty;
+    }
+}

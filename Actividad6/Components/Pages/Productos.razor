@@ -1,0 +1,168 @@
+﻿@page "/productos"
+@using Actividad6.Components.Data
+@rendermode InteractiveServer
+
+<h3>Productos</h3>
+
+<EditForm Model="_producto" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="my-3">
+        <label for="txtInventario" class="form-label">Número de Inventario</label>
+        <InputNumber class="form-control" id="txtInventario" @bind-Value="_producto.NumeroInventario" />
+        <ValidationMessage For="@(() => _producto.NumeroInventario)" />
+    </div>
+
+    <div class="my-3">
+        <label for="txtNombre" class="form-label">Nombre</label>
+        <InputText class="form-control" id="txtNombre" @bind-Value="_producto.Nombre" />
+        <ValidationMessage For="@(() => _producto.Nombre)" />
+    </div>
+
+ 
+    <div class="my-3">
+        <label for="txtDepartamento" class="form-label">Departamento</label>
+        <InputRadioGroup class="form-control" id="txtDepartamento" @bind-Value="_producto.Departamento">
+            <InputRadio Value="@("Frutas")" />Frutas
+            <InputRadio Value="@("Verduras")" class="ms-3" />Verduras
+            <InputRadio Value="@("Lácteos")" class="ms-3" />Lácteos
+
+        </InputRadioGroup>
+        <ValidationMessage For="@(()=>_producto.Departamento)" />
+    </div>
+
+    @if (!_inventarioRepetido)
+    {
+        @if (_modoEdicion)
+        {
+            <button class="btn btn-warning me-2" type="submit">Actualizar</button>
+            <button class="btn btn-secondary" type="button" @onclick="CancelarEdicion">Cancelar</button>
+        }
+        else
+        {
+            <button class="btn btn-success" type="submit">Guardar</button>
+        }
+    }
+    else
+    {
+        <div class="alert alert-danger">Número de inventario ya registrado.</div>
+    }
+
+</EditForm>
+
+<hr />
+
+@if (_mostrarListado)
+{
+    <h4>Listado de Productos</h4>
+    <button class="btn btn-info mb-2" @onclick="MostrarExistencias">Ver Existencias</button>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Inventario</th>
+                <th>Nombre</th>
+                <th>Departamento</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var prod in _productos)
+            {
+                <tr>
+                    <td>@prod.NumeroInventario</td>
+                    <td>@prod.Nombre</td>
+                    <td>@prod.Departamento</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(prod)">Eliminar</button>
+                        <button class="btn btn-warning btn-sm" @onclick="() => Editar(prod)">Editar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h4>Existencias por Departamento</h4>
+    <button class="btn btn-secondary mb-2" @onclick="MostrarListado">Ver Listado</button>
+    <ul>
+        @foreach (var dep in _departamentoResumen)
+        {
+            <li>@dep.Key: @dep.Value productos</li>
+        }
+    </ul>
+}
+
+@code {
+    private Producto _producto = new();
+    private List<Producto> _productos = new();
+    private bool _inventarioRepetido = false;
+    private bool _modoEdicion = false;
+    private bool _mostrarListado = true;
+    private Dictionary<string, int> _departamentoResumen = new();
+
+    private void Guardar()
+    {
+        _inventarioRepetido = _productos.Any(p => p.NumeroInventario == _producto.NumeroInventario && !_modoEdicion);
+        if (_inventarioRepetido) return;
+
+        if (_modoEdicion)
+        {
+            var index = _productos.FindIndex(p => p.NumeroInventario == _producto.NumeroInventario);
+            if (index != -1)
+                _productos[index] = _producto;
+            _modoEdicion = false;
+        }
+        else
+        {
+            _productos.Add(_producto);
+        }
+
+        _producto = new();
+        _inventarioRepetido = false;
+        CalcularResumen();
+    }
+    private void CancelarEdicion()
+    {
+        _producto = new();
+        _modoEdicion = false;
+        _inventarioRepetido = false;
+    }
+
+
+    private void Eliminar(Producto prod)
+    {
+        _productos.Remove(prod);
+        CalcularResumen();
+    }
+
+    private void Editar(Producto prod)
+    {
+        _producto = new Producto
+            {
+                NumeroInventario = prod.NumeroInventario,
+                Nombre = prod.Nombre,
+                Departamento = prod.Departamento
+            };
+        _modoEdicion = true;
+    }
+
+    private void MostrarExistencias()
+    {
+        _mostrarListado = false;
+        CalcularResumen();
+    }
+
+    private void MostrarListado()
+    {
+        _mostrarListado = true;
+    }
+
+    private void CalcularResumen()
+    {
+        _departamentoResumen = _productos
+            .GroupBy(p => p.Departamento)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+    }

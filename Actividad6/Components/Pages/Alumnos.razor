@@ -1,55 +1,86 @@
 ﻿@page "/alumnos"
-
-@using Actividad6.Components.Data
+@rendermode InteractiveServer
 <h3>Alumnos</h3>
 
-<EditForm Model="_alumno" FormName="frmAlumno" OnSubmit="Guardar">
-	<div class="my-3">
-		<label for="txtNombre" class="form-label">Nombre</label>
-		<InputText @bind-Value="_alumno.Nombre" class="form-control" id="txtNombre"></InputText>
-
-	</div>
-	<div class="my-3">
-		<label for="txtCorreo" class="form-label">Correo</label>
-		<InputText @bind-Value="_alumno.Correo" class="form-control" id="txtCorreo"></InputText>
-
-	</div>
-	<div class="my-3">
-		<label for="txtEdad" class="form-label">Edad</label>
-		<InputNumber @bind-Value="_alumno.Edad" class="form-control" id="txtEdad"></InputNumber>
-
-	</div>
-	<button class="btn btn-success">Guardar</button>
+<EditForm Model="_alumno" FormName="frmAlumno" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="my-3">
+        <label for="txtNombre" class="form-label">Nombre</label>
+        <InputText class="form-control" id="txtLimite" @bind-Value="_alumno.Nombre" />
+        <ValidationMessage For="@(()=> _alumno.Nombre)" />
+    </div>
+    <div class="my-3">
+        <label for="txtCorreo" class="form-label">Correo</label>
+        <InputText class="form-control" id="txtLimite" @bind-Value="_alumno.Correo" />
+        <ValidationMessage For="@(()=> _alumno.Correo)" />
+    </div>
+    <div class="my-3">
+        <label for="txtEdad" class="form-label">Edad</label>
+        <InputNumber class="form-control" id="txtLimite" @bind-Value="_alumno.Edad" />
+        <ValidationMessage For="@(()=> _alumno.Edad)" />
+    </div>
+    <div class="my-3">
+        <label for="txtGenero" class="form-label">Genero</label>
+        <InputRadioGroup class="form-control" id="txtGenero" @bind-Value="_alumno.Genero">
+            <InputRadio Value="@("Femenino")" />Femenino
+            <InputRadio Value="@("Maculino")" class="ms-3" />Masculino
+            <InputRadio Value="@("Otro")" class="ms-3" />Otro
+        </InputRadioGroup>
+        <ValidationMessage For="@(()=> _alumno.Genero)" />
+    </div>
+    <button class="btn btn-success" type="submit">Guardar</button>
 </EditForm>
-
 <table class="table table-striped">
-<thead>
-	<tr>
-		<th>Nombre</th>
-		<th>Correo</th>
-		<th>Edad</th>
-	</tr>
-</thead>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Edad</th>
+            <th>Genero</th>
+            <th>Acciones</th>
 
-<tbody>
-	@foreach(Persona persona in _alumnos){
-		<tr>
-			<td>@persona.Nombre</td>
-			<td>@persona.Correo</td>
-			<td>@persona.Edad</td>
-		</tr>
-	}
-</tbody>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Persona persona in _alumnos)
+        {
+            <tr>
+                <td>@persona.Nombre</td>
+                <td>@persona.Correo</td>
+                <td>@persona.Edad</td>
+                <td>@persona.Genero</td>
+                <td>
+                    <button class="btn btn-danger"
+                            @onclick="@(()=>Eliminar(persona))">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
+@* 
+<h4>@_alumno.Nombre</h4>
+<h4>@_alumno.Correo</h4>
+<h4>@_alumno.Edad</h4>
+ *@
 
-@rendermode InteractiveServer
+
 @code {
-	private Persona _alumno = new();
-	private List<Persona> _alumnos = new();
+    private Persona _alumno = new();
+    private List<Persona> _alumnos = new();
 
-	private void Guardar(){
-		_alumnos.Add(_alumno);
-		_alumno = new();
-	}
-
+    private void Guardar()
+    {
+        _alumnos.Add(_alumno);
+        _alumno = new();
+    }
+    private void Eliminar(Persona persona)
+    {
+        _alumnos.Remove(persona);
+    }
 }
